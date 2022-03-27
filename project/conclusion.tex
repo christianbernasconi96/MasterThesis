@@ -1,0 +1,22 @@
+\section{Conclusion} \label{conclusion}
+The focus of this thesis was to understand how to exploit the hierarchical information of a Fine-grained Entity Typing dataset by using the Neuro-Symbolic Integration approach KENN. 
+
+In section~\ref{research_questions}, the following research question have been defined:
+\begin{itemize}
+    \item \textit{\textbf{RQ1: }How can we express hierarchical information through logical rules?}
+    \item \textit{\textbf{RQ2: }How does KENN behave with different configurations?}
+    \item \textit{\textbf{RQ3: }What are the benefits of using KENN in FET?}
+\end{itemize}
+
+Starting from the \textit{RQ1}, two main groups of constraints that could be derived from a hierarchy have been identified: \textit{vertical constraints}, to express specialization relations, and \textit{horizontal constraints} to express the disjointness or equivalence between two types. For each group, different strategies to define a logical KB have been proposed. All these strategies were formalized through FOL formulas, then analyzed with respect to their applicability in KENN. Thanks to the FOL formulation, each strategy can be generalized and adapted to be used in other NSI approaches. Among the proposals, the strategies that have been tested and deepened with KENN are those that impose vertical constraints: Bottom Up, Top Down, and Hybrid.
+
+To answer to the \textit{RQ2}, many experiments have been carried out to study the behavior of KENN. We observed in the first experiments that, regardless of the configuration of KENN's parameters, the pre-KENN network tends to adapt its predictions to the presence of KENN to obtain some desired output. Even more interesting are the results obtained in the multiloss experiments, since we proved that the pre-KENN network suffers from the presence of some logical clauses when it is forced to not adapt. In particular, the results showed that the learning process strove to drastically reduce the influence of unnecessary clauses. In light of these results, the best setup seems to be the one with the multiloss function and learnable weights, since with this setup each clause influences the final predictions depending on its real usefulness. Moreover, the results suggest the most effective KB mode is Top Down.
+
+Finally, we have the \textit{RQ3}, which would need more experiments to find an exhaustive answer. If we limit to the experiments of this thesis, we can try to give an answer starting from these two considerations:
+\begin{enumerate}
+    \item DistilBERT's experiments showed that KENN enhanced the learning process in the early epochs when models had not yet seen many examples.
+    \item The learned clause weights of the multiloss setup showed that the network considers helpful the clauses involving the rarest types of the dataset, while suffering the presence of the clauses involving frequent types.
+\end{enumerate}
+These results suggest that KENN may be more beneficial in resource-limited applications, where only low-capability models or small data are available. Moreover, the authors of KENN showed in~\cite{kenn, daniele2021neural} that their approach outperformed many state-of-the-art solutions in zero-shot learning, thus confirming that logical knowledge could be really useful to learn from a few data. This fact is very promising for future works, since KENN could be applied in a scenario where a new fine-grained type is added to the hierarchy of the type set, but only a few examples can be provided to the model to learn to classify the new type. As shown in the last experiment on the impact of KENN on costs, this solution would not be expensive since the additional costs introduced by KENN are negligible.
+
+These research questions could be further deepened and extended to new ones, depending on the results of the future works proposed in the next section.

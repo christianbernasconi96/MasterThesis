@@ -1,0 +1,14 @@
+\subsection{Baseline hyperparameter search}
+The architecture of the baseline neural network was kept simple to have a basic starting point, so it did not involve any search of the best combination of hidden layers/units. The optimization aimed to find the best representation of the input text in terms of tokens and involved a few hyperparameters.
+
+
+Fixed the training configuration following the \textit{Setup A}, we can proceed with the explanation of the hyperparameter search. We saw in section \ref{baseline_model} that the input of the model is split in mention, left context and right context tokens separated by \verb|[SEP]|. Although keeping every token of every span would feed the model with the maximum amount of information, this is not a feasible solution because of the high cost. For this reason, it is necessary to find the optimal number of tokens for both mention and context to reach a trade-off between cost and performance. Before going on, an important remark: tokens and words are two distinct things. In this case, we are looking for the optimal number of words that will be transformed by the tokenizer into a different number of tokens. Since BERT's tokenization is based on the WordPiece, the number of tokens grows up rapidly due to the subwords segmentation. For this reason, the maximum number of tokens is capped to 80 (left-to-right) for not exceeding the resource usage. Sequences with less than 80 tokens are filled with empty tokens.
+
+The optimization is based on the metrics of \textit{macro f1 examples} and \textit{macro f1 classes} in this order of relevance. The search is performed iteratively by changing the number of words to keep for each input part. Starting from 1 mention word without any context, the number of mention words is increased until it stops improving. Once fixed the length of the mention, the left and right contexts get increased until reaching convergence. The two contexts share the same length.
+\\\\
+The best configurations found for the two datasets are the following:
+\begin{itemize}
+    \item \textbf{FIGER:} \texttt{mention = 6}, \texttt{context = 19}
+    \item \textbf{BBN:} \texttt{mention = 5}, \texttt{context = 13}
+\end{itemize}
+Since these parameters refer to DistilBERT, the search procedure should be repeated for BERT to use it at its best. However, this has not been done for cost reasons. Aware of this, the same parameters have been used for both the encoders.

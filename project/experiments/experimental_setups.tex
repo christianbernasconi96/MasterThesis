@@ -1,0 +1,21 @@
+% \pagebreak
+\subsection{Experimental setups}
+Two setups were adopted for the experiments. The main differences between the setups are the stopping criterion and the batch size. In particular, \textit{Setup B} is used when BERT is involved since \textit{Setup A} would be too expensive.
+\paragraph{Setup A} 
+\begin{itemize}
+    \item \textbf{number of epochs:} 100 for FIGER, 75 for BBN\footnote{BBN is smaller than FIGER and converges faster}
+    \item \textbf{number of examples per epoch:} 10,240 (20 batches\footnote{using $n$ batches per epoch means performing $n$ backward operations per epoch} of size 512)
+    \item \textbf{data shuffle:} each time the whole dataset has been seen
+    \item \textbf{optimizer:} Adam with fixed learning rate set to 0.0005
+    \item \textbf{inference:} threshold = 0.5
+\end{itemize}
+
+\paragraph{Setup B} 
+\begin{itemize}
+    \item \textbf{number of epochs:} undefined; determined by an early stopping strategy on the \textit{dev loss} with \textit{patience = 5}
+    \item \textbf{number of examples per epoch:} 10,240 (160 batches of size 64)
+    \item \textbf{data shuffle:} every time the whole dataset has been seen
+    \item \textbf{optimizer:} Adam with fixed learning rate set to 0.0005
+     \item \textbf{inference:} threshold = 0.5
+\end{itemize}
+

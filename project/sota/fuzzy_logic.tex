@@ -1,0 +1,64 @@
+\subsection{Fuzzy Logic} \label{fuzzy_logic}
+Fuzzy Logic (FL) aims at modeling the human reasoning system. It finds its roots in multi-valued logic, which extends the classical two-valued logic by adding new truth values. Differently from other multi-valued logics which have a finite number of truth values, in FL a variable can assume the value of any real number in [0,~1], where 0 means completely false and 1 means completely true.
+% This characteristic is also found in Probabilistic Logic, where the truth value of a formula is computed by probabilistic expressions.
+If we think about the definition of logic, it \emph{``is the science of the formal principle of reasoning"}. From this perspective, FL is concerned with the formal principles of \textit{approximate reasoning}, since we deal with imprecise premises from which we derive imprecise conclusions~\cite{pal1991fuzzy}. This aspect reflects the fact that in human reasoning we have to deal with vagueness when classifying concepts such as a \textit{tall person} or a \textit{small number}~\cite{hajek1998basic, novak2012mathematical}. In this work, we will focus on the fuzzy extension of the First Order Logic (FOL).
+
+Several FL implementations have been proposed over the years to approximate the logical operators and quantifiers in different ways. We now proceed with the description of some popular variants of the FL by assuming familiarity with the basic notions of the FOL. The definitions we will use in this section are taken from~\cite{analyzingDiffFuzzyLogic}. First of all, the semantics of the main fuzzy operators relies on the following functions:
+\begin{itemize}
+    \item \textbf{Fuzzy Negation:} function to compute the \textit{negation} of a truth value of a formula. A \textit{fuzzy negation} is a decreasing function $ N:[0,1]\rightarrow [0,1] $ \\
+    such that $ N(1)=0 $ and $ \forall (x)\in [0,1], N(N(x)) \geq x $. $N$ is called \textit{strict} if it is strictly decreasing and continuous, and \textit{strong} if \\$\forall x \in [0,1], N(N(x))=x$. %In general, we will consider the classical negation $N(x) = 1 - x$.
+    
+    \item \textbf{Triangular Norms (t-norms):} function to compute the \textit{conjunction} of two truth values of a formula. A \textit{t-norm} is a function $ T:[0,1]^{2}\rightarrow [0,1] $ that is \textit{commutative} and \textit{associative}, where $\forall x \in [0,1], T(x,\cdot)$ is increasing (\textit{monotonicity}) and $\forall x \in [0,1], T(1,x)=x$ (\textit{neutrality}).
+    
+    \item \textbf{Triangular Conorms (t-conorm):} function to compute the \textit{disjunction} of two truth values of a formula. A \textit{t-conorm} (also known as s-norm) is a function $S:[0,1]^{2} \rightarrow [0,1] $ that is \textit{commutative} and \textit{associative}, where $\forall x \in [0,1], S(x,\cdot)$ is increasing (\textit{monotonicity}) and $\forall x \in [0,1], S(0,x)=x$ (\textit{neutrality}). Since t-conorms are obtained from t-norms by applying De Morgran's law from classical logic, it is possible to write the following equivalence
+    \begin{gather*}
+        S(a, b) = 1 - T(1 - a, 1 - b)
+    \end{gather*}
+    
+    \item \textbf{Aggregation Operators:} function to compute $\forall$ and $\exists$ quantifiers. 
+    \begin{itemize}
+        \item the $\forall$ quantifier can be interpreted as a function $A:[0,1]^{n} \rightarrow [0,1] $ computed as a conjunction over all arguments $x$, using a t-norm adapted to $n$-dimensional input:
+        \begin{gather*}
+            A_{T}()=0 \\
+            A_{T}(x_{1},x_{2},...,x_{n}) = T(x_{1},A_{T}(x_{2},...,x_{n}))
+        \end{gather*}
+        
+        \item the $\exists$ quantifier can be interpreted as a function $E:[0,1]^{n} \rightarrow [0,1] $ computed as a disjunction over all arguments $x$, using a t-conorm adapted to $n$-dimensional input:
+        \begin{gather*}
+            E_{S}()=0 \\
+            E_{S}(x_{1},x_{2},...,x_{n}) = S(x_{1},E_{S}(x_{2},...,x_{n}))
+        \end{gather*}
+    \end{itemize}
+\end{itemize}
+
+Starting from these definitions, we can find a variety of implementations of fuzzy operators. In Table~\ref{tab:fuzzy_norm} are reported the operators of some popular fuzzy logics. The variants proposed by Łukasiewicz and Gödel can be considered among the most popular, but there are many other interpretations (e.g., Weber, Yager, Fodor). Table~\ref{tab:fuzzy_aggregation} reports some aggregation operators based on the presented t-norm and t-conorm operators. 
+
+
+\begin{table}
+\centering
+\caption{Some common t-norm and t-conorm in fuzzy logic}
+\label{tab:fuzzy_norm}
+\begin{tabular}{|c|cc|}
+\hline
+\textbf{Name} & \multicolumn{1}{c|}{\textbf{T-norm}} & \textbf{T-conorm}              \\ \hline
+Gödel         & $T_{G}(a,b)=min(a,b)$                & $S_{G}(a,b)=max(a,b)$          \\ \hline
+Product       & $T_{P}(a,b)=a \cdot b$               & $S_{P}(a,b)=a + b - a \cdot b$ \\ \hline
+Łukasiewicz   & $T_{L}(a,b)=max(a+b-1,0)$            & $S_{L}(a,b)=min(a+b,1)$        \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}
+\centering
+\caption{Some common aggregation operators in fuzzy logic}
+\label{tab:fuzzy_aggregation}
+\resizebox{\columnwidth}{!}{\begin{tabular}{|c|cc|}
+\hline
+\textbf{Name}     & \multicolumn{1}{c|}{\textbf{Generalizes}} & \textbf{Aggregation operator}                                     \\ \hline
+Minimum           & $T_{G}$                                   & $A_{T_{G}}(x_{1},...,x_{n}) = min(x_{1},...,x_{n})$               \\
+Product           & $T_{P}$                                   & $A_{T_{P}}(x_{1},...,x_{n}) = \prod_{i=1}^{n} x_{i}$              \\
+Łukasiewicz       & $T_{L}$                                   & $A_{T_{L}}(x_{1},...,x_{n}) = max(\sum_{i=1}^{n} x_{i}-(n-1), 0)$ \\ \hline
+Maximum           & $S_{G}$                                   & $E_{S_{G}}(x_{1},...,x_{n}) = max(x_{1},...,x_{n})$               \\
+Probabilistic Sum & $S_{P}$                                   & $E_{S_{P}}(x_{1},...,x_{n}) = 1 - \prod_{i=1}^{n} (1 - x_{i}) $   \\
+Bounded Sum       & $S_{L}$                                   & $E_{S_{L}}(x_{1},...,x_{n}) = min(\sum_{i=1}^{n} x_{i}, 1)$       \\ \hline
+\end{tabular}}
+\end{table}

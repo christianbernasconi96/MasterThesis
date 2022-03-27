@@ -1,0 +1,114 @@
+\subsection{Datasets}
+Several datasets were proposed through the years to evaluate the task of FET. Since building large annotated datasets is an expensive task, most of them are built using Distant Supervision techniques. Some state-of-the-art datasets used to evaluate FET approaches are FIGER~\cite{Ling2012FineGrainedER}, BBN~\cite{ren-etal-2016-afet}, OntoNotes~\cite{ontonotes} and Choi~\cite{choi}. While the first three datasets have tree-like structures to group types hierarchically, Choi is organized differently. It groups the types into three categories: general, fine-grained, and ultra-fine-grained. Each dataset is provided with its own type set and is split into training set and test set. While every training set is obtained through distant supervision, test sets are manually annotated for most of them.
+
+This thesis focuses the experiments on two of the most popular datasets: FIGER and BBN. The reason behind the choice is that they have a less complex hierarchy than OntoNotes, thus allowing us to better comprehend how KENN influences the task and how to take advantage of it. Regarding Choi, it has not been considered for this work because types are not hierarchically organized.
+
+\subsubsection{FIGER}
+FIGER is one of the first FET datasets. It was presented in 2012 with Fine-Grained Entity Recognition~\cite{Ling2012FineGrainedER}. The original version of the dataset is based on a type set $T$ derived from Freebase~\cite{bollacker2008freebase} and counts a total of 112 types. The hierarchy is organized as a forest of trees with maximum depth 1, i.e., 2-level hierarchy. A summary of the type set can be found in Figure~\ref{fig:figer}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\linewidth]{figer.png}
+    \caption{Type set of FIGER. Each box can be seen as a two-level tree, with the root node represented by the type in bold. The box at the bottom right is composed of uncategorized types. (Source:~\cite{Ling2012FineGrainedER})}
+    \label{fig:figer}
+\end{figure}
+
+As said previously, the training set is obtained with a distant supervision technique and counts about $1.5M$ instances. The source of data that has been labeled is constituted by Wikipedia articles, where anchor links are treated as entity mentions. The annotation procedure can be summarized in three steps:
+\begin{enumerate}
+    \item For each sentence, detect all the linked segments $m$
+    \item For each $m$, retrieve the related Wikipedia entity $e_{m}$
+    \item For each $e_{m}$, obtain its types $t'_{m}$ from Freebase
+    \item For each $t'_{m}$, refine the types to obtain a subset $t_{m} \subseteq t'_{m}$ such that $t_{m} \subseteq T$. The refinement is done by keeping only the ones with more than 5 ground instances and merging types that are too specific.
+\end{enumerate}
+
+The test set is composed of 434 manually annotated examples. The sentences are extracted from local newspapers, photography and veterinary magazines, and the student newspaper of the University of Washington.
+
+Each entry of the dataset is represented following the structure of the JSON in Figure~\ref{fig:entry_bbn}. The main fields are \textit{tokens}, which contains the list of the worlds of the sentence, and \textit{mentions}. For each mention there are three subfields: \textit{start} and \textit{end} indicate the index of the tokens that delimits the mention, and \textit{labels} contains the true types.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{figures/entry_bbn.JPG}
+    \caption{Structure of a FIGER/BBN entry. Example taken from BBN.}
+    \label{fig:entry_bbn}
+\end{figure}
+
+\subsubsection{BBN}
+BBN dataset for FET made its first appearance in~\cite{ren2016noise} in 2016. The original version of this dataset comes from the BBN Pronoun Coreference and Entity Type Corpus~\cite{bbnCoreference}, composed of manually annotated Wall Street Journal articles. These articles were originally annotated using 93 types, divided into 12 named entity types, 9 nominal entity types, 7 numeric types, and 64 subtypes. However, when applying distant supervision, the authors used DBpedia Spotlight to link entities and they had to remove those BBN types that could not be mapped into Freebase types. The resulting type set counts 47 types.
+
+The dataset is constituted by 32,739 entries. The test set has not been manually annotated. To construct it, the authors simply extracted a subset composed of the 20\% of the dataset,
+
+An entry of the dataset is structured in the same way as FIGER (Figure~\ref{fig:entry_bbn}), so we can find the sentence as \textit{tokens} and the \textit{mentions} including \textit{start}, \textit{end} and \textit{labels} as subfields.
+
+\subsubsection{Dataset preparation \& statistics} \label{dataset_stats}
+The adopted versions of the datasets are those proposed by Ren et al. in~\cite{ren-etal-2016-afet}\footnote{https://github.com/INK-USC/AFET}. Before performing the experiments, both training sets of FIGER and BBN were refined. First of all, the duplicates (i.e., instances with the same context, mention, and types) were removed. Then, examples having the same context and different sets of mentions were merged. Each entry with more than one mention was subsequently divided into distinct entries with single mentions. Regarding FIGER, the equivalent types \texttt{/living\_thing} and \texttt{/livingthing} were unified in \texttt{/living\_thing}. Finally the sentences were split into 3 fields: \textit{left\_context\_token}, \textit{mention\_span} and \textit{right\_context\_token}. The mention types can be found in the field \textit{y\_str}. An example of an entry of the refined dataset is available in Figure~\ref{fig:entry_bbn_clean}. Since the dev sets were not provided within the original datasets, they were obtained by sampling about 1K instances of the training sets, such that single-mention examples derived from the same multi-mention example are assigned to the same set.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{figures/entry_bbn_clean.JPG}
+    \caption{Structure of a FIGER/BBN entry after data preparation - Example taken from BBN}
+    \label{fig:entry_bbn_clean}
+\end{figure}
+
+Before proceeding with the analysis of the datasets, it is helpful to point out that every sentence can contain multiple types from different branches. We will refer to this condition with the term multibranch. Furthermore, if an instance $x$ of the dataset is labeled with a type $t$ that is a subtype of $t'$, then the type set of $x$ must contain both $t$ and $t'$.
+
+In Table~\ref{tab:dataset_stats} we can find some useful statistics about the two datasets. The fields of the table can be described as follows:
+\begin{itemize}
+    \item \textbf{\# ex:} number of examples of the refined version of the dataset
+    \item \textbf{\% only supertype:} percentage of examples where a coarse type occurs without any of its subtypes
+    \item \textbf{\% only supertype (strict):} percentage of examples where only coarse types occur
+    \item \textbf{\% inter-tree:} percentage of examples where sibling types occur together
+    \item \textbf{\% intra-tree:} percentage of examples where types from different trees occur together
+    \item \textbf{\% intra/inter-tree:} percentage of examples where types from different branches occur together\footnote{this statistic is not equivalent to \textit{\%~inter-tree}~+~\%~intra-tree, since in the same example we could find both the situations}
+    \item \textbf{\# types:} number of types of the refined version of the dataset
+    \item \textbf{\# avg types:} average number of types per example
+    \item \textbf{\% isolated types:} percentage of types corresponding to an isolated node\footnote{node without any parent or child} of the hierarchy
+\end{itemize}
+
+Looking at the table, it is possible to draw some considerations. In both datasets, we can observe that the multibranch examples are mostly caused by the presence of \textit{inter-tree} types. Regarding FIGER, we see that the statistics about \textit{only~supertype} are widely different between the training/dev and test sets. We have about the 21\% of cases against the 60\%, becoming 15\% against 54\% considering the \textit{strict} mode. This diversity derives from the manual annotation, where probably the types annotated through distant supervision that were too specific have been removed by the annotators. Even the statistics of \textit{intra/inter-tree} differ a lot between the training/dev and test sets. In this case, we move from the 35\% of multibranch examples to the 11\%. Again, the reason can be found in the manual annotation. Indeed, when using distant supervision techniques, a mention can be labeled with all its meanings disregarding the context. To point out how noisy is FIGER, we can also see how the \textit{\#~avg~types} statistic drastically decreases after the manual annotation.
+
+Moving on to BBN, which does not have a manually annotated test set, the situation is quite different. First of all, we can notice that while the training/dev set counts the 22-24\% of multibranch examples, in the test set they are absent. This statistic is motivated by the fact that Ren et al. pruned these examples from the test set. For the same reason, we have no difference between the values of \textit{\%~only~supertype} and \textit{\%~only~supertype~(strict)} in the test. 
+
+\begin{table}
+\centering
+\caption{Datasets statistics}
+\label{tab:dataset_stats}
+\resizebox{\columnwidth}{!}{\begin{tabular}{cccclll}
+\hline
+\multicolumn{1}{|c|}{\textbf{Dataset}} & \multicolumn{1}{c|}{\textbf{\# ex}}    & \multicolumn{1}{c|}{\textbf{\% only supertype}} & \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}\% only supertype\\ (strict)\end{tabular}}} & \multicolumn{1}{c|}{\textbf{\% inter-tree}} & \multicolumn{1}{c|}{\textbf{\% intra-tree}} & \multicolumn{1}{c|}{\textbf{\% inter/intra-tree}} \\ \hline
+\multicolumn{1}{|c|}{BBN train}        & 84,492                                 & 16.0                                            & 7.64                                                                                               & \multicolumn{1}{c}{22.33}                   & \multicolumn{1}{c}{2.65}                    & \multicolumn{1}{c|}{24.09}                        \\
+\multicolumn{1}{|c|}{BBN dev}          & 1,039                                  & 15.3                                            & 8.47                                                                                               & \multicolumn{1}{c}{20.69}                   & \multicolumn{1}{c}{2.31}                    & \multicolumn{1}{c|}{22.52}                        \\
+\multicolumn{1}{|c|}{BBN test}         & 12,349                                 & 7.44                                            & 7.44                                                                                               & \multicolumn{1}{c}{-}                       & \multicolumn{1}{c}{-}                       & \multicolumn{1}{c|}{-}                            \\ \hline
+\multicolumn{1}{|c|}{FIGER train}      & 2,676,854                              & 21.33                                           & 14.99                                                                                              & \multicolumn{1}{c}{23.63}                   & \multicolumn{1}{c}{15.38}                   & \multicolumn{1}{c|}{35.23}                        \\
+\multicolumn{1}{|c|}{FIGER dev}        & 1,094                                  & 21.57                                           & 14.72                                                                                              & \multicolumn{1}{c}{25.59}                   & \multicolumn{1}{c}{14.35}                   & \multicolumn{1}{c|}{35.83}                        \\
+\multicolumn{1}{|c|}{FIGER test}       & 563                                    & 60.57                                           & 54.17                                                                                              & \multicolumn{1}{c}{11.01}                   & \multicolumn{1}{c}{0.71}                    & \multicolumn{1}{c|}{11.72}                        \\ \hline
+\multicolumn{1}{l}{}                   & \multicolumn{1}{l}{}                   & \multicolumn{1}{l}{}                            & \multicolumn{1}{l}{}                                                                               &                                             &                                             &                                                   \\ \cline{1-4}
+\multicolumn{1}{|c|}{\textbf{Dataset}} & \multicolumn{1}{c|}{\textbf{\# types}} & \multicolumn{1}{c|}{\textbf{\# avg types}}      & \multicolumn{1}{c|}{\textbf{\% isolated types}}                                                    &                                             &                                             &                                                   \\ \cline{1-4}
+\multicolumn{1}{|c|}{BBN train}        & 157,292                                & 1.86                                            & \multicolumn{1}{c|}{24.3}                                                                          &                                             &                                             &                                                   \\
+\multicolumn{1}{|c|}{BBN dev}          & 1,903                                  & 1.83                                            & \multicolumn{1}{c|}{24.44}                                                                         &                                             &                                             &                                                   \\
+\multicolumn{1}{|c|}{BBN test}         & 20,606                                 & 1.67                                            & \multicolumn{1}{c|}{15.4}                                                                          &                                             &                                             &                                                   \\ \cline{1-4}
+\multicolumn{1}{|c|}{FIGER train}      & 6,380,532                              & 2.38                                            & \multicolumn{1}{c|}{9.21}                                                                          &                                             &                                             &                                                   \\
+\multicolumn{1}{|c|}{FIGER dev}        & 2,616                                  & 2.39                                            & \multicolumn{1}{c|}{9.79}                                                                          &                                             &                                             &                                                   \\
+\multicolumn{1}{|c|}{FIGER test}       & 840                                    & 1.49                                            & \multicolumn{1}{c|}{6.55}                                                                          &                                             &                                             &                                                   \\ \cline{1-4}
+\end{tabular}}
+\end{table}
+
+The information about the hierarchy of each dataset are reported in Table~\ref{tab:dataset_hierarchy}. The columns of the table can be described as follows:
+\begin{itemize}
+    \item \textbf{\# nodes:} number of nodes of the hierarchy (i.e., cardinality of the type set)
+    \item \textbf{\# levels:} maximum number of levels of a tree in the type set
+    \item \textbf{\# top level:} number of root nodes with at least a child (i.e., supertypes)
+    \item \textbf{\# leaves:} number of child nodes (i.e., subtypes)
+    \item \textbf{\# isolated:} number of isolated nodes (i.e., neither supertypes nor subtypes)
+\end{itemize}
+
+\begin{table}
+\centering
+\caption{Datasets hierarchical structure}
+\label{tab:dataset_hierarchy}
+\begin{tabular}{|c|ccccc|}
+\hline
+\textbf{Dataset} & \multicolumn{1}{c|}{\textbf{\# nodes}} & \multicolumn{1}{c|}{\textbf{\# levels}} & \multicolumn{1}{c|}{\textbf{\# top level}} & \multicolumn{1}{c|}{\textbf{\# leaves}} & \textbf{\# isolated} \\ \hline
+BBN              & 47                                     & 2                                       & 9                                          & 31                                      & 7                    \\ \hline
+FIGER            & 128                                    & 2                                       & 22                                         & 79                                      & 27                   \\ \hline
+\end{tabular}
+\end{table}

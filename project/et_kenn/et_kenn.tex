@@ -1,0 +1,21 @@
+\section{Fine-grained Entity Typing with KENN} \label{et_with_kenn}
+We saw in section \ref{entity_typing} that Fine-grained Entity Typing (FET) is a multilabel classification problem, where the goal is to assign one or more types from a type set to a mention appearing in a text. This section will present the FET datasets used for the experiments and the architecture of the adopted models.
+
+
+\input{et_kenn/datasets}
+
+\input{et_kenn/models}
+
+\subsection{Inference rules} \label{inference_rules}
+The scores produced by the model can be processed through different inference rules to transform the probability of each class into a binary prediction. The most common strategy to discriminate between positive and negative predictions in classification problems is to use a threshold, but there are many alternatives that may lead to better results. The choice of the inference rule may heavily affect the evaluation of a model. Given an instance, we indicate with $Y$ the set of output values of the neural network and with $y$ the output for a specific type. The inference rules that will be used to compute the final predictions are the following:
+\begin{enumerate}
+    \item \textbf{Threshold:} basic inference method which simply compare the scores with the threshold
+    \begin{gather*}
+        pred(y) = 1 \iff score(y) > threshold
+    \end{gather*}
+    \item \textbf{Threshold or max:} same as \textit{threshold}'s method, but it prevents void predictions by assigning the class with maximum score when none of the scores exceeds the threshold
+    \begin{gather*}
+        pred(y) = 1 \iff (score(y) > threshold \vee score(y) = \max_{y_{i}\in Y}score(y_{i}))
+    \end{gather*}
+    This inference rule is commonly used by FET from the literature.
+\end{enumerate}

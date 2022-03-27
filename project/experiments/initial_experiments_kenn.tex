@@ -1,0 +1,67 @@
+\subsection{Initial experiments with KENN}
+The goal of these experiments is to analyze how KENN behaves when involved in a FET task. When the framework has been introduced in section \ref{KENN}, we saw that it allows using different settings about clause weights (i.e., fixed values, learnable parameters). However, the best choice for this context needs to be discovered. The same goes for the KB modes, as several alternatives were proposed without knowing which one would be the most promising for our task. Given these premises, the analysis can be divided into two parts. The first part is constituted by some \textit{quantitative analysis} (section~\ref{quantitative_analysis}) and aims to study the impact of each configuration of KENN. The second part is called \textit{preactivations analysis} (section~\ref{preactivation_analysis}) and investigates what happens in the network at a lower level.
+
+\subsubsection{Setup}
+Both the baseline and KENN-based models used in these experiments follow the \textit{Setup A}. The tested configurations are obtained with the following parameters:
+\begin{itemize}
+    \item \textbf{KB modes:} Bottom Up, Top Down and Hybrid
+    \item \textbf{initial clause weights:} 0.5, 1.0 and 2.0
+    \item \textbf{fixed clause weights}
+    \item \textbf{encoder:} DistilBERT with adapters
+    \item \textbf{loss function:} Binary Cross-Entropy, with the weights of positive examples set to 1
+\end{itemize}
+Each KB mode is tested by varying the initial clause weight, counting a total of 9 KENN's configurations. Clause weights are set as non-learnable parameters to force KENN to treat them all equally during the enhancement process and to ensure the presence of KENN for all the training.
+
+\subsubsection{Terminology}
+The following terminology will be used during the analysis:
+\begin{itemize}
+    \item \textbf{F:} stands for \textit{Father} (i.e, supertype); used to indicate a type that corresponds to a father node in the hierarchical tree
+    \item \textbf{S:} stands for \textit{Son} (i.e., subtype); used to indicate a type that corresponds to a child node in the hierarchical tree
+    \item \textbf{pre-KENN state:} values of the preactivations provided to KENN as input
+    \item \textbf{post-KENN state:} values of the preactivations after KENN (i.e., final output)
+\end{itemize}
+\textit{\textbf{Additional note:} in some circumstances we may say that the baseline model and the pre-KENN network are equivalent. To avoid misunderstanding, the term ``equivalent" is intended as identical architecture and initialization, excluding KENN's layer.}
+
+
+\subsubsection{Quantitative analysis} \label{quantitative_analysis}
+This is a high-level analysis based on the performance obtained by the models on the dev set during the training process. The involved studies will try to answer the following questions:
+\begin{enumerate}
+    \item \textbf{Effects of different clause weights:} how much does the weight of a clause affect the final predictions?
+    \item \textbf{Effects of each KB mode:} is there a winning strategy to define clauses that brings more benefits than the others? does the winning strategy perform better than the baseline?
+    \item \textbf{Metrics per type:} is there a KB mode that enhances the performance on certain types?
+\end{enumerate}
+
+\subsubsection{Preactivations analysis} \label{preactivation_analysis}
+The preactivations produced by the models are the core of this analysis. Since the pre-KENN network and the baseline model share the same architecture and initialization, these studies aim to analyze how the networks evolve differently seeing the same data. Furthermore, for each KB mode, we will study how the types F and S involved in the same clause influence each other. The study can be divided into the following analysis:
+\begin{enumerate}
+    \item \textbf{Distributions analysis:} it compares the distributions of the pre-KENN, post-KENN, and baseline preactivations.
+    \item \textbf{Finite State Machines (FSM) analysis:} it studies the effects of each KB mode with respect to the preactivations of the types F and S involved in the same clause. FSMs are a compact and intuitive way to represent the available transitions between pre-KENN and post-KENN states accordingly to the KB mode.
+    \item \textbf{Sankey diagrams\footnote{a Sankey diagram is a flow diagram where the width of the arrows represents the flow rate between two states} analysis:} it supports the FSM analysis by adding information about the number of examples involved in each transition. 
+\end{enumerate}
+The FSM analysis needs the introduction of a clear notation. In Figure~\ref{fig:fsm_example} we can find an example of FSM with random transitions. The terminology used is quite simple:
+\begin{itemize}
+    \item \textbf{FxSy}: arbitrary state where $ F = x $ and $ S = y $, with $x,y \in \{0, 1\}$; F and S are types involved in the same clause
+    \item \textbf{F*S*$\to$F*S*:} transition from a pre-KENN state to a post-KENN state
+    \item \textbf{forbidden state:} F0S1 (circled in red); this state should never occur as final state since it represents a violation of the hierarchy
+    \item \textbf{p(F*S*$\to$F*S*):} probability to move from a pre-KENN state to a post-KENN state
+    \item \textbf{\% correct:} percentage of transitions from a wrong\footnote{wrong = at least one between F and S is wrongly predicted} pre-KENN state to a correct\footnote{correct = both F and S are correctly predicted} post-KENN state
+    \item \textbf{\% wrong:} percentage of transitions from a correct pre-KENN state to a wrong post-KENN state
+    \item \textbf{\% other:} percentage of transitions from a wrong pre-KENN state to a wrong post-KENN state
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/fsm_example.jpg}
+    \caption{ Example of a Finite State Machine }
+    \label{fig:fsm_example}
+\end{figure}
+A few final notes on the FSM representation:
+\begin{itemize}
+    \item probabilities and percentages are extracted from the dev set
+    \item self loop transitions are omitted from the graphical representation
+    \item the sum of probababilities of outgoing transitions, including self loops, must be equal to 1
+\end{itemize}
+
+\subsubsection{Results on FIGER}
+Only for these experiments, a reduced version of FIGER is used with the purpose to anticipate training convergence. The subset of the dataset is extracted by a random sample that counts approximately 267K training examples.
+\input{experiments/quantitative_analysis}
+\input{experiments/preactivations_analysis}

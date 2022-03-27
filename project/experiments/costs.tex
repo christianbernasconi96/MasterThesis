@@ -1,0 +1,21 @@
+\subsection{Impact of KENN on costs} \label{costs}
+This last experiment aims to verify if KENN has a strong impact on the costs of the neural network in which it is integrated. The models used to carry out this study are those used to perform the test set evaluation. For this experiment, it is not necessary to vary the dataset, the KB mode, or other KENN parameters since they do not affect the results.
+
+First of all, we can make some considerations about the additional resources required by KENN-based models. When KENN's layer is added to a model, the network increases its number of parameters accordingly to the number of clauses contained in the logical KB. If we consider that the baseline model with DistilBERT counts about 66M network parameters, the number of clauses becomes irrelevant when compared to the total number of parameters. The same is especially true for BERT, since it has around 340 million parameters. 
+
+Moving on to the costs in terms of inference time, the models have been tested on a batch of 64 examples. To slow down the inference time and better observe differences even using small data, the models were not loaded in GPU. For each model, prediction times were measured over 10 runs. The results are shown in Table~\ref{tab:costs}. Even in this case, we can see that the impact of KENN on the costs of a network is negligible since the inference time is much more influenced by the complexity of the encoders. 
+
+\begin{table}[H]
+\centering
+\caption{Comparison between inference time of the baseline and KENN-based models on a batch of 64 examples without using GPU}
+\label{tab:costs}
+\begin{tabular}{c|c|c|}
+\cline{2-3}
+                                        & \textbf{DistilBERT}                                             & \textbf{BERT}                                                    \\ \hline
+\multicolumn{1}{|c|}{\textbf{baseline}} & \begin{tabular}[c]{@{}c@{}}2.217s\\ ($\pm$ 0.166s)\end{tabular} & \begin{tabular}[c]{@{}c@{}}15.150s\\ ($\pm$ 0.297s)\end{tabular} \\ \hline
+\multicolumn{1}{|c|}{\textbf{KENN}}     & \begin{tabular}[c]{@{}c@{}}2.300s\\ ($\pm$ 0.144s)\end{tabular} & \begin{tabular}[c]{@{}c@{}}15.915s\\ ($\pm$ 0.250s)\end{tabular} \\ \hline
+\end{tabular}
+\end{table}
+
+
+

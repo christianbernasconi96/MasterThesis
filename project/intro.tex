@@ -1,0 +1,48 @@
+\section{Introduction} \label{intro}
+\subsection{Motivation and background}
+Deep Neural Networks (DNNs) in the field of Natural Language Processing (NLP) have proved to be of primary importance due to the significant benefit they can provide to a great diversity of applications that spans from text translation, summarization, or information extraction, among others.
+Such approaches are known to be data greedy, thus requiring a considerable amount of annotated data. Unfortunately, building an annotated dataset is an expensive and sophisticated activity, since the annotated data have to be as precise as possible according to the task of interest. In addition, the information they carry about the real world can easily become obsolete because it inherently changes over time or just becomes more complex.
+A task that has become more complex over time is Entity Typing (ET). Originally proposed by~\cite{MUC6} as a sub-task of Named Entity Recognition (NER), the first type set was composed of only three types: \texttt{Person, Organization,} and \texttt{Location}. However, the last decades have experienced an increasing interest in the task, since information about named entities can be exploited to improve several downstream tasks such as Question Answering, Entity Linking, Relation Extraction, and many others. Along with expanding the type set, here emerges the need to organize the types in structures that account for specialization, thus obtaining a hierarchy (e.g.,~\cite{Fleischman2001AutomatedSO,fleischman2002fine} used subtypes of \texttt{Person} and \texttt{Location}). Concurrently, several datasets have been proposed~\cite{Ling2012FineGrainedER,bbnCoreference,ontonotes} introducing a high number of new types by providing a specialization or adding branches to the initial hierarchy. When dealing with datasets having such type sets, the ET task goes under the name of Fine-grained Entity Typing (FET). Given these premises, it is possible to outline a real-case scenario in which a DNN for FET may need to learn new types that were unknown at training time.
+
+When a DNN model for FET has to be adapted to new types, it may be convenient to draw upon the knowledge that has already been acquired to favor the adaptation process. This operation can be carried out by defining relations between learned types and new types through the use of external knowledge, such as knowledge bases and/or domain experts. 
+We can identify two relations that can help in the discrimination of new types: specialization and disjointness. Specialization describes the subtype relation between two types (e.g., \texttt{Actor} is the specialization of \texttt{Person)}, disjointness describes mutual exclusivity on entities between types (e.g., if an entity is labeled as \texttt{Person} it cannot be labeled as \texttt{Location} and vice versa). Specialization and disjointness can be easily mapped to the disposition of types in a hierarchy: the former corresponds to the is-a relation between a subtype and a supertype, the latter expresses mutual exclusivity between types from different branches.
+
+The specialization and disjointness relations can be induced by a DNN during the training of new types. However, even if the is-a relation is given by the presence of the \textit{supertype} on each occurrence of the \textit{subtype} in a dataset, a DNN could still assign the \textit{subtype} without assigning the \textit{supertype}, thus leading to a wrong type assignment. Disjointness is even more complex to induce since it is difficult to make assumptions on what a DNN can learn about the co-occurrence of types from different branches. Since the induction process is not obvious, having a technique to inject external knowledge into a DNN could be helpful to guide the learning process.
+
+Neuro-Symbolic Integration (NSI) approaches have shown to be useful in multiple tasks through the peculiar characteristics of mixing neural representation and symbolic knowledge. In particular, different approaches based on the integration of explicit knowledge have been proposed during the last years~\cite{sarker2021neuro}. 
+Using an NSI approach to explicitly model and inject external knowledge into a neural ET approach may be a valid solution to face the problem of adapting a trained model to the presence of new types. If so, injecting external knowledge about the type dependencies discussed above can lead to a promising scenario: since it will be no more necessary to induce knowledge from data, the training would benefit in terms of time and effectiveness thanks to the external knowledge. For example, let us assume that the new type \texttt{Politician} has to be learned by a DNN: if we know that \texttt{Politician} is a subtype of the already learned type \texttt{Person}, we can use the prediction of \texttt{Person} to influence the prediction of \texttt{Politician}, thus speeding up the learning process.
+
+Starting from the assumption that in specific scenarios like FET, exploiting prior knowledge may actually accelerate the training process by requiring less training data, particularly when dealing with underrepresented, specific, or even unseen types, this thesis aims to inspect the usage and behavior of a literature NSI approach: Knowledge Enhanced Neural Networks (KENN)~\cite{kenn}. The main reasons that led to the choice of KENN among other state-of-the-art solutions are the following:
+\begin{enumerate}
+    \item It allows to define the hierarchical relations of interest through logical clauses
+    \item It can be placed on top of any DNN to influence its predictions, thus allowing to observe how a model behaves in presence of different configurations of KENN
+    \item The effect of each logical clause can be analyzed in detail to understand the importance of that clause
+    \item Experiments in~\cite{kenn, daniele2021neural} showed that KENN is suitable for zero-shot learning scenarios, so it can be a promising solution to face the problem of the adaptation of a trained model to the presence of new types
+\end{enumerate}
+ 
+\subsection{Research questions} \label{research_questions}
+Now that the context of this thesis has been illustrated, we can sum up the goal of this work with the following research questions:
+\begin{itemize}
+    \item \textit{\textbf{RQ1: }How can we express hierarchical information through logical rules?}\\
+    $\rightarrow$ define a strategy to translate the relations of specialization and disjointness into logical rules
+    \item \textit{\textbf{RQ2: }How does KENN behave with different configurations?}\\
+    $\rightarrow$ define a parameter space to test KENN with different setups\\
+    $\rightarrow$ find the most promising parameters configuration
+    \item \textit{\textbf{RQ3: }What are the benefits of using KENN in FET?}\\
+    $\rightarrow$ evaluate whether the injection of prior knowledge may accelerate the learning process, impact the performance or, more generally, provide additional benefits to a DNN for FET
+\end{itemize}
+
+\subsection{Outline}
+Section~\ref{sota} provides the background knowledge of the topics involved in this thesis. After an overview of Language Models, Entity Typing, and Fuzzy Logic, this section introduces Neural-Symbolic Integration and provides a comparison between KENN and other approaches of interest from the literature. 
+
+In section~\ref{KENN}, the architectural details and language of KENN are described by focusing on the most relevant aspects. Then, several strategies to define logical clauses starting from a hierarchy will be proposed within some preliminary experiments.
+
+Next, in section~\ref{et_with_kenn} we can find the description of the datasets used for the evaluation, followed by the architecture of the adopted models.
+
+Proceeding to section~\ref{experiments}, which is the core of this thesis, it contains all the experiments carried out. Each experiment is presented by providing the motivation and the experimental setup. Since the setup of some experiments may derive from previous results, each experiment will be immediately followed by a brief discussion on the outcome.
+
+Finally, we have section~\ref{conclusion}, which sums up the conclusions of each experiment to answer the research questions one by one, and section~\ref{future_works}, which proposes some promising future works.
+
+
+
+

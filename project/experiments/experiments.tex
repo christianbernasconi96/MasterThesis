@@ -1,0 +1,25 @@
+\section{Experiments} \label{experiments}
+The conducted experiments involve many parameters that can be varied and combined to observe KENN's behavior from several points of view. The space of parameters is the following:
+\begin{itemize}
+    \item \textbf{KB mode:} the KB encoding strategy used to define the logical knowledge
+    \item \textbf{initial clause weight:} the value used to initialize the network parameters of the clause weights
+    \item \textbf{fixed/learnable clause weights:} the strategy used to set the clause weights
+    \item \textbf{encoder:} the language model used to encode the textual input
+    \item \textbf{loss function:} the loss function used during training
+\end{itemize}
+Before describing the experiments, we will introduce in the next sections the ET metrics and the training setups adopted. It is also important to point out that every model used the same initialization of random seeds, which guarantees: 
+\begin{enumerate}
+    \item Same layer initialization between different setups
+    \item Given an epoch, each model is trained on the same batch of data
+\end{enumerate}
+
+
+
+\input{experiments/metrics}
+\input{experiments/experimental_setups}
+\input{experiments/hyperparameter_search}
+\input{experiments/initial_experiments_kenn}
+\input{experiments/distilbert_vs_bert}
+\input{experiments/multiloss}
+\input{experiments/test_evaluation}
+\input{experiments/costs}

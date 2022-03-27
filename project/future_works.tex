@@ -1,0 +1,12 @@
+\section{Future works} \label{future_works}
+This thesis can be extended with many other studies. Some interesting experiments and analysis that could be performed starting from this work are:
+\begin{enumerate}
+    \item \textbf{In-depth analysis of multiloss models:} Investigate on the results shown in section~\ref{test_evaluation} to understand which are the real benefits brought by KENN.
+    \item \textbf{Denoised datasets:} Repeat these experiments by using the same datasets after applying a strategy of denoising to see if the logical knowledge would be exploited more effectively.
+    \item \textbf{T-conorm:} Try different t-conorm implementations (e.g., Łukasiewicz, Product) to see how they influence the behavior of KENN.
+    \item \textbf{/*/other:} Extend the type set of the datasets by adding to each supertype of the hierarchy the subtype \verb|/*/other|. In this way, each example is forced to have only full-path annotation, thus making the Top Down clauses always consistent with the Open World Assumption of the original datasets.
+    \item \textbf{Horizontal constraints:} Try to exploit the proposed horizontal constraints to build richer logical KBs. 
+    \item \textbf{Transfer learning:} Use KENN in a \textit{domain adaptation} scenario to map the learned types of a source domain to new types of a similar target domain. In this way, the training of the model on the target dataset can exploit the information learned from the source dataset.
+    \item \textbf{Test the introduction of new types after training: } Use KENN to retrain a model when a new fine-grained type is added to the type set. In this case, logical knowledge may help to learn the new type by using only a few examples.
+    \item \textbf{Test other NSI approaches: } Using the same logical knowledge, verify if other NSI approaches would obtain the same results of KENN.
+\end{enumerate}
